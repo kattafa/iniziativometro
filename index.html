@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tracker Iniziativa D&D</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    font-family: 'Segoe UI', Georgia, serif;
+    background: linear-gradient(135deg, #1a1210 0%, #2b1c15 100%);
+    color: #f0e6d2;
+    min-height: 100vh;
+    margin: 0;
+    padding: 30px 15px;
+    display: flex;
+    justify-content: center;
+  }
+  .container {
+    width: 100%;
+    max-width: 520px;
+  }
+  h1 {
+    text-align: center;
+    font-size: 1.8em;
+    color: #d4af37;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.6);
+    margin-bottom: 5px;
+    letter-spacing: 1px;
+  }
+  .subtitle {
+    text-align: center;
+    color: #b5a582;
+    font-size: 0.9em;
+    margin-bottom: 25px;
+  }
+  .form-row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 25px;
+    background: rgba(0,0,0,0.25);
+    padding: 14px;
+    border-radius: 10px;
+    border: 1px solid #4a3a2a;
+  }
+  input {
+    background: #241a14;
+    border: 1px solid #5a4632;
+    color: #f0e6d2;
+    border-radius: 6px;
+    padding: 10px 12px;
+    font-size: 1em;
+    outline: none;
+  }
+  input:focus {
+    border-color: #d4af37;
+  }
+  #nameInput { flex: 3; min-width: 0; }
+  #initInput { flex: 1; min-width: 0; }
+  #addBtn {
+    flex: 0 0 auto;
+    background: linear-gradient(180deg, #8a1f1f, #6b1515);
+    color: #f0e6d2;
+    border: 1px solid #a83232;
+    border-radius: 6px;
+    padding: 10px 16px;
+    font-weight: bold;
+    cursor: pointer;
+    font-size: 1em;
+  }
+  #addBtn:hover {
+    background: linear-gradient(180deg, #a12525, #7d1818);
+  }
+  ul#list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  li {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid #4a3a2a;
+    border-left: 5px solid #d4af37;
+    border-radius: 8px;
+    padding: 10px 14px;
+    transition: transform 0.15s ease;
+    animation: fadeIn 0.25s ease;
+  }
+  .li-main {
+    display: flex;
+    align-items: center;
+    width: 100%;
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-6px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .init-value {
+    font-size: 1.3em;
+    font-weight: bold;
+    color: #d4af37;
+    min-width: 42px;
+    text-align: center;
+  }
+  .char-name {
+    flex: 1;
+    margin-left: 14px;
+    font-size: 1.1em;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .rank {
+    color: #7a6a50;
+    font-size: 0.8em;
+    min-width: 22px;
+    text-align: center;
+  }
+  .delete-btn {
+    background: none;
+    border: none;
+    color: #e04b4b;
+    font-size: 1.3em;
+    font-weight: bold;
+    cursor: pointer;
+    padding: 0 6px;
+    line-height: 1;
+    transition: transform 0.15s ease, color 0.15s ease;
+  }
+  .delete-btn:hover {
+    color: #ff6b6b;
+    transform: scale(1.2);
+  }
+  .spell-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 8px;
+    margin-left: 34px;
+  }
+  .spell-input {
+    flex: 1;
+    min-width: 0;
+    background: #1c140f;
+    border: 1px solid #4a3a2a;
+    color: #e8dcc0;
+    border-radius: 5px;
+    padding: 5px 8px;
+    font-size: 0.85em;
+    outline: none;
+  }
+  .spell-input:focus {
+    border-color: #7a5aa8;
+  }
+  .duration-input {
+    width: 60px;
+    flex: 0 0 auto;
+    background: #1c140f;
+    border: 1px solid #4a3a2a;
+    color: #e8dcc0;
+    border-radius: 5px;
+    padding: 5px 6px;
+    font-size: 0.85em;
+    text-align: center;
+    outline: none;
+  }
+  .duration-input:focus {
+    border-color: #7a5aa8;
+  }
+  .spell-clear-btn {
+    flex: 0 0 auto;
+    background: none;
+    border: none;
+    color: #7a6a50;
+    font-size: 1em;
+    cursor: pointer;
+    padding: 0 4px;
+    line-height: 1;
+  }
+  .spell-clear-btn:hover {
+    color: #ff6b6b;
+  }
+
+  .spells-container {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .spells-container:not(:empty) {
+    margin-top: 8px;
+  }
+  .spells-container .spell-row {
+    margin-top: 0;
+  }
+
+  .add-spell-btn {
+    margin-top: 8px;
+    margin-left: 34px;
+    background: none;
+    border: 1px dashed #4a3a2a;
+    color: #8a7a5a;
+    border-radius: 5px;
+    padding: 4px 10px;
+    font-size: 0.78em;
+    cursor: pointer;
+  }
+  .add-spell-btn:hover {
+    border-color: #7a5aa8;
+    color: #b39ddb;
+  }
+
+  .legend {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-bottom: 18px;
+    font-size: 0.8em;
+    color: #b5a582;
+  }
+  .legend span {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .legend .dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    display: inline-block;
+  }
+  .dot-waiting { background: #d4af37; }
+  .dot-current { background: #3fae5c; }
+  .dot-acted { background: #c0392b; }
+
+  /* --- Responsive: tablet --- */
+  @media (max-width: 700px) {
+    body { padding: 20px 10px; }
+    .container { max-width: 100%; }
+  }
+
+  /* --- Responsive: smartphone --- */
+  @media (max-width: 480px) {
+    h1 { font-size: 1.5em; }
+    .form-row {
+      flex-wrap: wrap;
+      padding: 10px;
+    }
+    #nameInput { flex: 1 1 100%; }
+    #initInput { flex: 1 1 100%; }
+    #addBtn { flex: 1 1 100%; padding: 12px; }
+
+    .status-bar { flex-wrap: wrap; gap: 8px; }
+
+    li { padding: 10px; }
+    .char-name { font-size: 1em; margin-left: 8px; }
+    .init-value { min-width: 34px; font-size: 1.15em; }
+    .rank { min-width: 16px; }
+    .turn-arrow { padding: 8px 8px 8px 0; }
+    .delete-btn { padding: 8px 4px; font-size: 1.4em; }
+
+    .spell-row { margin-left: 0; flex-wrap: wrap; }
+    .spell-input { flex: 1 1 100%; }
+    .duration-input { flex: 1 1 70px; }
+    .spell-clear-btn { padding: 6px 8px; font-size: 1.2em; }
+    .add-spell-btn { margin-left: 0; padding: 8px 10px; width: 100%; }
+
+    .legend { font-size: 0.75em; gap: 10px; }
+  }
+
+  @media (max-width: 340px) {
+    .char-name { max-width: 90px; }
+  }
+
+  .empty-msg {
+    text-align: center;
+    color: #7a6a50;
+    padding: 30px 0;
+    font-style: italic;
+  }
+  .status-waiting {
+    border-left-color: #d4af37;
+  }
+  .status-acted {
+    border-left-color: #c0392b;
+    opacity: 0.75;
+  }
+  .status-current {
+    border-left-color: #3fae5c;
+    background: rgba(63,174,92,0.1);
+    box-shadow: 0 0 0 1px rgba(63,174,92,0.35);
+    opacity: 1;
+  }
+
+  .turn-arrow {
+    flex: 0 0 auto;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    background: none;
+    border: none;
+    color: #7a6a50;
+    font-size: 1.4em;
+    cursor: pointer;
+    padding: 6px 10px 6px 0;
+    transition: transform 0.15s ease, color 0.15s ease;
+  }
+  li.status-current .turn-arrow {
+    display: flex;
+    color: #3fae5c;
+  }
+  .turn-arrow:hover {
+    transform: scale(1.25);
+    color: #ffdc6b !important;
+  }
+
+  .status-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    padding: 0 2px;
+  }
+  .round-count {
+    color: #d4af37;
+    font-weight: bold;
+    font-size: 1.05em;
+  }
+  #resetBtn {
+    background: none;
+    border: 1px solid #5a4632;
+    color: #b5a582;
+    border-radius: 6px;
+    padding: 5px 12px;
+    font-size: 0.85em;
+    cursor: pointer;
+  }
+  #resetBtn:hover {
+    border-color: #a83232;
+    color: #ff6b6b;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>⚔️ Tracker Iniziativa</h1>
+  <div class="subtitle">Ordine di combattimento</div>
+
+  <div class="form-row">
+    <input type="text" id="nameInput" placeholder="Nome personaggio" maxlength="30">
+    <input type="number" id="initInput" placeholder="Iniz.">
+    <button id="addBtn">Aggiungi</button>
+  </div>
+
+  <div class="legend">
+    <span><span class="dot dot-waiting"></span>Deve agire</span>
+    <span><span class="dot dot-current"></span>Sta agendo</span>
+    <span><span class="dot dot-acted"></span>Ha agito</span>
+  </div>
+
+  <div class="status-bar">
+    <span class="round-count">Round: <span id="roundCount">1</span></span>
+    <button id="resetBtn">↺ Reset</button>
+  </div>
+
+  <ul id="list"></ul>
+  <div id="emptyMsg" class="empty-msg">Nessun personaggio in lista. Aggiungine uno sopra!</div>
+</div>
+
+<script>
+  let characters = [];
+  let currentTurnId = null;
+  let round = 1;
+  let combatStarted = false;
+
+  const nameInput = document.getElementById('nameInput');
+  const initInput = document.getElementById('initInput');
+  const addBtn = document.getElementById('addBtn');
+  const list = document.getElementById('list');
+  const emptyMsg = document.getElementById('emptyMsg');
+  const roundCountEl = document.getElementById('roundCount');
+  const resetBtn = document.getElementById('resetBtn');
+
+  function addCharacter() {
+    const name = nameInput.value.trim();
+    const init = parseInt(initInput.value, 10);
+
+    if (!name) {
+      nameInput.focus();
+      return;
+    }
+    if (isNaN(init)) {
+      initInput.focus();
+      return;
+    }
+
+    characters.push({ id: Date.now() + Math.random(), name, init, spells: [] });
+    nameInput.value = '';
+    initInput.value = '';
+    nameInput.focus();
+    render();
+  }
+
+  function deleteCharacter(id) {
+    characters = characters.filter(c => c.id !== id);
+    render();
+  }
+
+  function render() {
+    // ordina in ordine decrescente di iniziativa
+    characters.sort((a, b) => b.init - a.init);
+
+    // finche' il combattimento non e' partito (nessuna freccia cliccata),
+    // il turno e' sempre quello con l'iniziativa piu' alta
+    if (!combatStarted && characters.length > 0) {
+      currentTurnId = characters[0].id;
+    }
+
+    // se il personaggio di turno e' stato eliminato, si ripiega sul primo
+    if (characters.length > 0 && !characters.some(c => c.id === currentTurnId)) {
+      currentTurnId = characters[0].id;
+    }
+    if (characters.length === 0) {
+      currentTurnId = null;
+    }
+
+    roundCountEl.textContent = round;
+    list.innerHTML = '';
+
+    if (characters.length === 0) {
+      emptyMsg.style.display = 'block';
+      return;
+    }
+    emptyMsg.style.display = 'none';
+
+    const currentIndex = characters.findIndex(c => c.id === currentTurnId);
+
+    characters.forEach((c, index) => {
+      const li = document.createElement('li');
+
+      if (index === currentIndex) {
+        li.classList.add('status-current');
+      } else if (index < currentIndex) {
+        li.classList.add('status-acted');
+      } else {
+        li.classList.add('status-waiting');
+      }
+
+      li.innerHTML = `
+        <div class="li-main">
+          <button class="turn-arrow" title="Passa al prossimo personaggio">➤</button>
+          <span class="rank">${index + 1}</span>
+          <span class="init-value">${c.init}</span>
+          <span class="char-name">${escapeHtml(c.name)}</span>
+          <button class="delete-btn" title="Rimuovi personaggio">✕</button>
+        </div>
+        <div class="spells-container"></div>
+        <button class="add-spell-btn" title="Aggiungi incantesimo">+ Incantesimo</button>
+      `;
+
+      li.querySelector('.delete-btn').addEventListener('click', () => deleteCharacter(c.id));
+      li.querySelector('.turn-arrow').addEventListener('click', nextTurn);
+
+      const spellsContainer = li.querySelector('.spells-container');
+      c.spells.forEach(spell => {
+        const spellRow = document.createElement('div');
+        spellRow.className = 'spell-row';
+        spellRow.innerHTML = `
+          <input type="text" class="spell-input" placeholder="Incantesimo" value="${escapeAttr(spell.name)}">
+          <input type="number" class="duration-input" placeholder="Durata" min="0" value="${escapeAttr(spell.duration)}">
+          <button class="spell-clear-btn" title="Rimuovi incantesimo">✕</button>
+        `;
+        const spellInput = spellRow.querySelector('.spell-input');
+        const durationInput = spellRow.querySelector('.duration-input');
+        spellInput.addEventListener('input', () => { spell.name = spellInput.value; });
+        durationInput.addEventListener('input', () => { spell.duration = durationInput.value; });
+        spellRow.querySelector('.spell-clear-btn').addEventListener('click', () => {
+          c.spells = c.spells.filter(s => s.id !== spell.id);
+          render();
+        });
+        spellsContainer.appendChild(spellRow);
+      });
+
+      li.querySelector('.add-spell-btn').addEventListener('click', () => {
+        c.spells.push({ id: Date.now() + Math.random(), name: '', duration: '' });
+        render();
+      });
+
+      list.appendChild(li);
+    });
+  }
+
+  function nextTurn() {
+    if (characters.length === 0) return;
+    combatStarted = true;
+
+    const currentIndex = characters.findIndex(c => c.id === currentTurnId);
+    if (currentIndex !== -1) {
+      const currentChar = characters[currentIndex];
+      currentChar.spells = currentChar.spells
+        .map(spell => {
+          const durationNum = parseInt(spell.duration, 10);
+          if (spell.name && spell.name.trim() !== '' && !isNaN(durationNum) && durationNum > 0) {
+            return { ...spell, duration: durationNum - 1 };
+          }
+          return spell;
+        })
+        .filter(spell => {
+          const durationNum = parseInt(spell.duration, 10);
+          const hadValidDuration = spell.name && spell.name.trim() !== '' && !isNaN(durationNum);
+          return !(hadValidDuration && durationNum <= 0);
+        });
+    }
+
+    let nextIndex = currentIndex + 1;
+    if (nextIndex >= characters.length) {
+      nextIndex = 0;
+      round++;
+    }
+    currentTurnId = characters[nextIndex].id;
+    render();
+  }
+
+  function resetTracker() {
+    characters = [];
+    currentTurnId = null;
+    round = 1;
+    combatStarted = false;
+    nameInput.value = '';
+    initInput.value = '';
+    render();
+  }
+
+  function escapeHtml(str) {
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+  }
+
+  function escapeAttr(val) {
+    return String(val ?? '').replace(/"/g, '&quot;');
+  }
+
+  addBtn.addEventListener('click', addCharacter);
+  resetBtn.addEventListener('click', resetTracker);
+  nameInput.addEventListener('keydown', e => { if (e.key === 'Enter') initInput.focus(); });
+  initInput.addEventListener('keydown', e => { if (e.key === 'Enter') addCharacter(); });
+
+  render();
+</script>
+</body>
+</html>
