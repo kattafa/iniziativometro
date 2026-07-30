@@ -382,7 +382,7 @@
   </div>
 
   <div class="status-bar">
-    <span class="round-count">Round: <span id="roundCount">1</span></span>
+    <span class="round-count" id="roundLabel">Round: <span id="roundCount">1</span></span>
     <button id="resetBtn">↺ Reset</button>
   </div>
 
@@ -390,7 +390,7 @@
   <div id="emptyMsg" class="empty-msg">Nessun personaggio in lista. Aggiungine uno sopra!</div>
 
   <div class="footer-link">
-    <a href="https://github.com/kattafa/iniziativometro#readme" target="_blank" rel="noopener">📖 Guida &amp; README</a>
+    <a href="README.md" target="_blank" rel="noopener">📖 Guida &amp; README</a>
   </div>
 </div>
 
@@ -406,6 +406,7 @@
   const list = document.getElementById('list');
   const emptyMsg = document.getElementById('emptyMsg');
   const roundCountEl = document.getElementById('roundCount');
+  const roundLabel = document.getElementById('roundLabel');
   const resetBtn = document.getElementById('resetBtn');
 
   function addCharacter() {
@@ -452,6 +453,7 @@
     }
 
     roundCountEl.textContent = round;
+    roundLabel.style.visibility = characters.length === 0 ? 'hidden' : 'visible';
     list.innerHTML = '';
 
     if (characters.length === 0) {
